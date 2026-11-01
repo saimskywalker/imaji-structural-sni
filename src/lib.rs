@@ -63,9 +63,9 @@
 //! A steel beam check from end to end.
 //!
 //! ```
-//! use imaji_structural_design::loads::{evaluate, lrfd_combinations, LoadSet};
-//! use imaji_structural_design::steel::{check_flexure, check_shear, profiles, FlexureInput, ShearInput};
-//! use imaji_structural_design::units::{Force, Length, LoadEffect, Moment, Stress};
+//! use imaji_structural_sni::loads::{evaluate, lrfd_combinations, LoadSet};
+//! use imaji_structural_sni::steel::{check_flexure, check_shear, profiles, FlexureInput, ShearInput};
+//! use imaji_structural_sni::units::{Force, Length, LoadEffect, Moment, Stress};
 //!
 //! // Unfactored midspan moments, kN.m.
 //! let loads = LoadSet::zero()
@@ -85,7 +85,7 @@
 //!
 //! assert!(flexure.adequate);
 //! assert!(shear.adequate);
-//! # Ok::<(), imaji_structural_design::SniError>(())
+//! # Ok::<(), imaji_structural_sni::SniError>(())
 //! ```
 
 #![deny(missing_docs)]
