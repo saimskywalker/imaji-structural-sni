@@ -4,14 +4,14 @@
 //! Run with:
 //!
 //! ```text
-//! cargo run -p imaji-structural-design --example concrete_beam_check
+//! cargo run -p imaji-structural-sni --example concrete_beam_check
 //! ```
 
 use std::error::Error;
 
-use imaji_structural_design::concrete::{check_beam_flexure, ConcreteBeamInput, Confinement};
-use imaji_structural_design::loads::{evaluate, lrfd_combinations, LoadSet};
-use imaji_structural_design::units::{Area, Length, LoadEffect, Moment, Stress};
+use imaji_structural_sni::concrete::{check_beam_flexure, ConcreteBeamInput, Confinement};
+use imaji_structural_sni::loads::{evaluate, lrfd_combinations, LoadSet};
+use imaji_structural_sni::units::{Area, Length, LoadEffect, Moment, Stress};
 
 fn main() -> Result<(), Box<dyn Error>> {
     // ---- Design data -----------------------------------------------------

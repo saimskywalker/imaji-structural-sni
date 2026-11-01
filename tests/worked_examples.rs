@@ -6,21 +6,21 @@
 //!
 //! Units follow the crate convention: mm, mm2, mm3, mm4, N, N/mm, N·mm, MPa.
 
-use imaji_structural_design::concrete::{
+use imaji_structural_sni::concrete::{
     check_beam_flexure, ConcreteBeamInput, ConcreteLimitState, SectionBehaviour,
 };
-use imaji_structural_design::deflection::{
+use imaji_structural_sni::deflection::{
     check_deflection, simply_supported_uniform, DeflectionLimit,
 };
-use imaji_structural_design::loads::{evaluate, lrfd_combinations, LoadSet};
-use imaji_structural_design::seismic::{
+use imaji_structural_sni::loads::{evaluate, lrfd_combinations, LoadSet};
+use imaji_structural_sni::seismic::{
     approximate_period, base_shear, bounded_period, CsGoverning, SeismicInput,
 };
-use imaji_structural_design::steel::{
+use imaji_structural_sni::steel::{
     check_flexure, check_shear, profiles, FlexureInput, LimitState, LtbZone, ShearInput,
     Slenderness, WebShearCase, STEEL_E,
 };
-use imaji_structural_design::units::{
+use imaji_structural_sni::units::{
     Area, Force, Length, LineLoad, LoadEffect, Moment, SecondMoment, Stress,
 };
 
@@ -35,7 +35,7 @@ use imaji_structural_design::units::{
 
 const FY_BJ41: Stress = Stress::mpa(250.0);
 
-fn beam_350() -> imaji_structural_design::steel::SteelSection {
+fn beam_350() -> imaji_structural_sni::steel::SteelSection {
     profiles::wf("WF 350x175x7x11").expect("bundled profile")
 }
 
@@ -93,8 +93,8 @@ fn example1_plastic_moment() {
 #[test]
 fn example1_bracing_limits() {
     let section = beam_350();
-    let lp = imaji_structural_design::steel::lp(&section, FY_BJ41, STEEL_E).expect("lp");
-    let lr = imaji_structural_design::steel::lr(&section, FY_BJ41, STEEL_E).expect("lr");
+    let lp = imaji_structural_sni::steel::lp(&section, FY_BJ41, STEEL_E).expect("lp");
+    let lr = imaji_structural_sni::steel::lr(&section, FY_BJ41, STEEL_E).expect("lr");
     assert!((lp.to_mm() - 1965.1).abs() < 1.0, "Lp {lp}");
     assert!((lr.to_mm() - 5778.5).abs() < 10.0, "Lr {lr}");
 }

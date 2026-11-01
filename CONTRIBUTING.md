@@ -76,6 +76,6 @@ for a physical quantity.
 
 Member and load checks from SNI 1726, 1727, 1729 and 2847. Irrigation
 hydraulics belongs in
-[imaji-kp-hydraulics](https://github.com/saimskywalker/irigasi-imaji-kp-hydraulics).
+[imaji-tirta](https://github.com/saimskywalker/imaji-tirta).
 The crate has no dependencies beyond the standard library, and a PR that adds
 one needs a strong reason.
