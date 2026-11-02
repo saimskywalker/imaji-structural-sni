@@ -79,3 +79,8 @@ hydraulics belongs in
 [imaji-tirta](https://github.com/saimskywalker/imaji-tirta).
 The crate has no dependencies beyond the standard library, and a PR that adds
 one needs a strong reason.
+
+## Stay in touch
+
+Don't forget to follow [@saimskywalker](https://github.com/saimskywalker) on
+GitHub to see new releases and other open-source projects as they come out.
