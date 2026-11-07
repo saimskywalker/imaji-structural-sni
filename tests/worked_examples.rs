@@ -149,7 +149,8 @@ fn example1_shear_check() {
 /// delta = 5*w*L^4/(384*E*I) with w = 12 N/mm, L = 6000 mm, I = 13 600 cm4
 ///       = 5*12*1.296e15 / (384*200000*1.36e8)
 ///       = 7.776e16 / 1.04448e16 = 7.4448 mm
-/// L/360 = 16.667 mm, so ratio = 0.4467
+/// L/360 = 16.667 mm, so ratio = 0.4467. L/360 is a project requirement here:
+/// SNI 1729 sets no numeric limit for steel (AISC 360-16 cl. L2).
 #[test]
 fn example1_live_load_deflection() {
     let delta = simply_supported_uniform(
@@ -161,7 +162,8 @@ fn example1_live_load_deflection() {
     .expect("delta");
     assert!((delta.to_mm() - 7.4448).abs() < 1e-3, "delta {delta}");
 
-    let check = check_deflection(delta, Length::m(6.0), DeflectionLimit::Floor).expect("check");
+    let check =
+        check_deflection(delta, Length::m(6.0), DeflectionLimit::SpanOver(360.0)).expect("check");
     assert!((check.allowable.to_mm() - 16.666_7).abs() < 1e-3);
     assert!(
         (check.ratio - 0.446_69).abs() < 1e-4,
@@ -171,9 +173,10 @@ fn example1_live_load_deflection() {
     assert!(check.adequate);
 }
 
-/// The same beam under a limit for brittle finishes, L/480 = 12.5 mm, still passes,
-/// but the total load deflection under D + L would not: with w = 20 kN/m the
-/// deflection is 7.4448 * 20/12 = 12.408 mm, ratio 0.993, marginal.
+/// The same beam under a tighter project limit for brittle finishes,
+/// L/480 = 12.5 mm, still passes, but the total load deflection under D + L
+/// would not: with w = 20 kN/m the deflection is 7.4448 * 20/12 = 12.408 mm,
+/// ratio 0.993, marginal.
 #[test]
 fn example1_tighter_limit_is_marginal_under_total_load() {
     let delta = simply_supported_uniform(
@@ -185,12 +188,8 @@ fn example1_tighter_limit_is_marginal_under_total_load() {
     .expect("delta");
     assert!((delta.to_mm() - 12.408).abs() < 1e-2, "delta {delta}");
 
-    let check = check_deflection(
-        delta,
-        Length::m(6.0),
-        DeflectionLimit::SupportingBrittleElements,
-    )
-    .expect("check");
+    let check =
+        check_deflection(delta, Length::m(6.0), DeflectionLimit::SpanOver(480.0)).expect("check");
     assert!(check.adequate);
     assert!(check.ratio > 0.98, "ratio {}", check.ratio);
 }

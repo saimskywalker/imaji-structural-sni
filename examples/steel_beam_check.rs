@@ -27,6 +27,9 @@ fn main() -> Result<(), Box<dyn Error>> {
     let unbraced = Length::m(3.0); // lateral bracing at midspan
     let dead = LineLoad::kn_per_m(8.0);
     let live = LineLoad::kn_per_m(12.0);
+    // Live load deflection limit. SNI 1729 sets no numeric value (AISC 360-16
+    // cl. L2 leaves it to the project), so this is a project requirement.
+    let deflection_limit = DeflectionLimit::SpanOver(360.0);
 
     let section = profiles::wf(designation).ok_or("profile not in the bundled catalogue")?;
 
@@ -51,6 +54,7 @@ fn main() -> Result<(), Box<dyn Error>> {
         dead.to_kn_per_m(),
         live.to_kn_per_m()
     );
+    println!("Deflection  live load limit {deflection_limit} (project requirement)");
     println!();
 
     // ---- Load combinations, SNI 1727 --------------------------------------
@@ -122,7 +126,10 @@ fn main() -> Result<(), Box<dyn Error>> {
         flexure.lb.to_mm(),
         flexure.ltb_zone
     );
-    println!("   Cb      = {:>12.2}", flexure.cb);
+    println!(
+        "   Cb      = {:>12.2}          (taken as 1.0, conservative, when not calculated)",
+        flexure.cb
+    );
     println!("   Mn,LTB  = {:>12.2} kN.m", flexure.mn_ltb.to_kn_m());
     match flexure.mn_flb {
         Some(value) => println!("   Mn,FLB  = {:>12.2} kN.m", value.to_kn_m()),
@@ -171,9 +178,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
     // ---- Serviceability ---------------------------------------------------
     let delta_live = simply_supported_uniform(live, span, STEEL_E, section.ix)?;
-    let deflection = check_deflection(delta_live, span, DeflectionLimit::Floor)?;
+    let deflection = check_deflection(delta_live, span, deflection_limit)?;
 
-    println!("5. Live load deflection (SNI 2847 cl. 24.2.2 style limit, L/360)");
+    println!("5. Live load deflection (project requirement, {deflection_limit})");
     println!("   Ix      = {:>12.0} mm4", section.ix.to_mm4());
     println!(
         "   delta   = {:>12.2} mm     (5*w*L^4/384EI)",
