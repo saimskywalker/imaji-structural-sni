@@ -5,13 +5,22 @@
 //!
 //! # Where the limits come from
 //!
-//! The span over ratio limits in [`DeflectionLimit`] are the familiar
-//! serviceability values of SNI 2847 clause 24.2.2, and SNI 1729 refers to
-//! equivalent values for steel. They are selected by the caller from the enum
+//! The named span over ratio limits in [`DeflectionLimit`] are the familiar
+//! serviceability values of SNI 2847 clause 24.2.2, a concrete clause. They are
+//! selected by the caller from the enum
 //! rather than looked up from a stored copy of the table, and the variant names
 //! describe the situation each applies to. Read the clause to decide which one
 //! your member falls under: the choice depends on what the member supports and on
 //! whether that construction is likely to be damaged by large deflections.
+//!
+//! # Steel members
+//!
+//! SNI 1729:2020 adopts AISC 360-16, whose clause L2 only requires that
+//! deflections not impair serviceability; it gives no span over ratio value.
+//! For a steel member the limit is therefore a project requirement (from the
+//! specification, the owner or the authority having jurisdiction). Pass it as
+//! [`DeflectionLimit::SpanOver`] and label it as a project requirement in any
+//! report, rather than citing the SNI 2847 clause behind the named variants.
 //!
 //! # Which deflection to compare
 //!
@@ -45,7 +54,9 @@ pub enum DeflectionLimit {
     /// A project-specific limit, `L` over the supplied denominator.
     ///
     /// Use this when the specification, the authority having jurisdiction or a
-    /// later edition of the standard sets a different value.
+    /// later edition of the standard sets a different value, and for steel
+    /// members, where SNI 1729 sets no numeric limit (see the module docs), for
+    /// example `SpanOver(360.0)` for a project requirement of `L/360`.
     SpanOver(f64),
 }
 

@@ -162,6 +162,9 @@ You still need the standards. This crate is not a substitute for them.
   Vertical distribution, torsion, drift and modal analysis are out of scope.
 - `Cb` is an input, not derived from a moment diagram. The default of 1.0 is
   always conservative.
+- The named deflection limits come from SNI 2847 clause 24.2.2 (concrete). For
+  steel, SNI 1729 sets no numeric limit (AISC 360-16 clause L2 leaves it to the
+  project), so pass the project requirement as `DeflectionLimit::SpanOver`.
 
 ## Disclaimer
 

@@ -124,9 +124,14 @@ pub struct ShearCheck {
 
 /// Web plate buckling coefficient for a web with transverse stiffeners.
 ///
-/// `kv = 5 + 5/(a/h)^2`, where `a` is the clear stiffener spacing and `h` the
-/// clear web depth (SNI 1729 clause G2.1(b)). Returns [`KV_UNSTIFFENED`] when the
-/// stiffeners are so far apart that the stiffened value falls below it.
+/// `kv = 5 + 5/(a/h)^2` for `a/h <= 3.0`, and `kv = 5.34` ([`KV_UNSTIFFENED`])
+/// for `a/h > 3.0`, where `a` is the clear distance between transverse
+/// stiffeners and `h` the clear web depth. This is AISC 360-16 clause
+/// G2.1(b)(2)(ii), Eq. G2-5, which SNI 1729:2020 adopts.
+///
+/// The switch is at `a/h = 3.0`, not where the formula meets 5.34
+/// (`a/h` about 3.83), so for `3.0 < a/h < 3.83` this returns 5.34 rather than
+/// the slightly higher, unconservative formula value.
 ///
 /// # Errors
 ///
@@ -138,7 +143,12 @@ pub struct ShearCheck {
 /// Check against the governing edition of SNI 1729.
 pub fn stiffened_web_kv(a_over_h: f64) -> Result<f64> {
     let ratio = positive("a_over_h", a_over_h)?;
-    Ok((5.0 + 5.0 / (ratio * ratio)).max(KV_UNSTIFFENED))
+    // AISC 360-16 G2.1(b)(2)(ii), Eq. G2-5: kv = 5 + 5/(a/h)^2, = 5.34 when a/h > 3.0.
+    if ratio > 3.0 {
+        Ok(KV_UNSTIFFENED)
+    } else {
+        Ok(5.0 + 5.0 / (ratio * ratio))
+    }
 }
 
 /// Full shear check of an I-shaped member, SNI 1729 clause G2.1.
@@ -331,12 +341,26 @@ mod tests {
         assert!((stiffened_web_kv(1.0).expect("kv") - 10.0).abs() < 1e-12);
         // a/h = 3.0 -> 5 + 5/9 = 5.556, above 5.34
         assert!((stiffened_web_kv(3.0).expect("kv") - 5.5556).abs() < 1e-4);
-        // a/h = 10 -> 5.05, clamped up to 5.34
+        // a/h = 10 > 3.0 -> 5.34 (the formula alone would give 5.05)
         assert!((stiffened_web_kv(10.0).expect("kv") - KV_UNSTIFFENED).abs() < 1e-12);
         assert!(matches!(
             stiffened_web_kv(0.0),
             Err(SniError::NonPositive { .. })
         ));
+    }
+
+    #[test]
+    fn stiffened_kv_switches_to_5_34_above_a_over_h_3() {
+        // AISC 360-16 G2.1(b)(2)(ii), Eq. G2-5: kv = 5.34 when a/h > 3.0.
+        // a/h = 3.5: the formula alone gives 5 + 5/12.25 = 5.408, but the clause
+        // sets 5.34.
+        assert!((stiffened_web_kv(3.5).expect("kv") - 5.34).abs() < 1e-12);
+        // Just above the switch the clause value applies, not 5 + 5/9.
+        assert!((stiffened_web_kv(3.000_001).expect("kv") - 5.34).abs() < 1e-12);
+        // a/h = 3.0 is still on the formula: 5 + 5/9 = 5.5556.
+        assert!((stiffened_web_kv(3.0).expect("kv") - (5.0 + 5.0 / 9.0)).abs() < 1e-12);
+        // a/h = 2.0: 5 + 5/4 = 6.25.
+        assert!((stiffened_web_kv(2.0).expect("kv") - 6.25).abs() < 1e-12);
     }
 
     #[test]
